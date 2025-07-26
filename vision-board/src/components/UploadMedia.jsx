@@ -1,4 +1,3 @@
-// src/components/UploadMedia.jsx
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 

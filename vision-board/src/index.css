@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+body {
+  background-color: #c5dba9; /* Light background for better contrast */
+  color: #000000; /* Dark text for readability */
+  font: 16px/1.5 'Segoe UI', sans-serif; /* Consistent font size and line height */
+}
