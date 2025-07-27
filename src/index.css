@@ -1,0 +1,297 @@
+/* Dreamy color palette */
+:root {
+  --periwinkle: #a7bfff;
+  --soft-pink: #f7c6e0;
+  --pistachio: #b6e2d3;
+  --butter-yellow: #fff6b7;
+  --spring-coral: #ffb6a3;
+  --peach-fuzz: #ffd6b0;
+  --nav-shadow: 0 8px 32px 0 rgba(168,191,255,0.15);
+}
+
+body {
+  background: linear-gradient(135deg, var(--periwinkle) 0%, var(--soft-pink) 100%);
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+  transition: background 1s;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 8%;
+  background: rgba(255,255,255,0.7);
+  box-shadow: var(--nav-shadow);
+  border-radius: 0 0 40px 40px;
+  position: relative;
+  z-index: 2;
+  animation: navbarFadeIn 1.2s cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+@keyframes navbarFadeIn {
+  from { opacity: 0; transform: translateY(-40px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.navbar-logo img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  box-shadow: 0 0 18px var(--soft-pink);
+  animation: logoSpin 4s infinite linear;
+}
+
+@keyframes logoSpin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+.navbar-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--spring-coral);
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px var(--peach-fuzz);
+  font-family: 'Pacifico', cursive;
+}
+
+.navbar ul {
+  display: flex;
+  gap: 30px;
+  background: linear-gradient(90deg, var(--pistachio), var(--butter-yellow));
+  padding: 12px 36px;
+  border-radius: 30px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.07);
+  animation: menuPop 1.2s cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+@keyframes menuPop {
+  0% { transform: scale(0.8);}
+  100% { transform: scale(1);}
+}
+
+.navbar ul li {
+  display: inline-block;
+  padding: 8px 18px;
+  margin: 0 8px;
+  color: #333;
+  font-weight: 500;
+  border-radius: 20px;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+
+.navbar ul li:hover {
+  background: var(--soft-pink);
+  color: var(--spring-coral);
+  transform: scale(1.08) rotate(-2deg);
+  box-shadow: 0 2px 12px var(--peach-fuzz);
+}
+
+.navbar button {
+  padding: 12px 28px;
+  border-radius: 30px;
+  border: none;
+  outline: 0;
+  background: linear-gradient(90deg, var(--spring-coral), var(--peach-fuzz));
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 2px 12px var(--spring-coral);
+  transition: background 0.3s, transform 0.2s;
+  animation: buttonBounce 1.5s infinite alternate;
+}
+
+@keyframes buttonBounce {
+  0% { transform: translateY(0);}
+  100% { transform: translateY(-6px);}
+}
+
+.navbar button:hover {
+  background: linear-gradient(90deg, var(--butter-yellow), var(--soft-pink));
+  color: var(--spring-coral);
+  transform: scale(1.07);
+}
+
+.container {
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 1.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0;}
+  to { opacity: 1;}
+}
+
+.container h1 {
+  font-size: 70px;
+  font-weight: 600;
+  color: var(--periwinkle);
+  text-shadow: 0 4px 24px var(--soft-pink);
+  font-family: 'Pacifico', cursive;
+  margin-bottom: 18px;
+  animation: floatTitle 2s infinite alternate;
+}
+
+@keyframes floatTitle {
+  0% { transform: translateY(0);}
+  100% { transform: translateY(-12px);}
+}
+
+.container p {
+  font-size: 1.5rem;
+  color: var(--spring-coral);
+  background: rgba(255,255,255,0.5);
+  padding: 18px 32px;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px var(--peach-fuzz);
+  animation: fadeIn 1.8s;
+}
+
+/* Fun floating shapes */
+.floating-shape {
+  position: absolute;
+  z-index: 0;
+  opacity: 0.18;
+  pointer-events: none;
+  animation: floatShape 8s infinite alternate;
+}
+
+@keyframes floatShape {
+  0% { transform: translateY(0) scale(1);}
+  100% { transform: translateY(-30px) scale(1.08);}
+}
+
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(167,191,255,0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+  animation: fadeIn 0.5s;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #fff6b7 0%, #f7c6e0 100%);
+  border-radius: 32px;
+  box-shadow: 0 8px 32px var(--spring-coral);
+  padding: 40px 32px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: menuPop 0.8s;
+}
+
+
+body {
+  background: linear-gradient(135deg, var(--periwinkle) 0%, var(--soft-pink) 100%);
+  color: #222; /* High contrast for readability */
+  font-family: "Poppins", sans-serif;
+}
+
+.container h1, .navbar-title {
+  color: #3a4ca8; /* Deep periwinkle for headings */
+  text-shadow: 0 2px 8px #fff6b7;
+}
+
+.container p, .navbar ul li {
+  color: #333; /* Solid readable text */
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 2px 12px var(--peach-fuzz);
+}
+
+.navbar ul {
+  background: #fff;
+  box-shadow: 0 0 30px rgba(0,0,0,0.07);
+}
+
+.navbar ul li:hover, .navbar button:hover {
+  background: var(--soft-pink);
+  color: #3a4ca8;
+  box-shadow: 0 2px 12px var(--peach-fuzz);
+}
+
+.card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px var(--pistachio);
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 32px var(--spring-coral);
+  transform: translateY(-6px) scale(1.03);
+}
+
+.dream-card {
+  background: linear-gradient(120deg, #fff6b7 60%, #f7c6e0 100%);
+  border-radius: 24px;
+  box-shadow: 0 4px 24px var(--pistachio);
+  padding: 32px 24px;
+  margin: 24px;
+  min-width: 260px;
+  max-width: 340px;
+  transition: box-shadow 0.3s, transform 0.2s;
+  font-family: 'Nunito', 'Poppins', Arial, sans-serif;
+  color: #333;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.2s;
+  flex: 1 1 280px;
+}
+
+.dream-card:hover {
+  box-shadow: 0 8px 32px var(--spring-coral);
+  transform: translateY(-8px) scale(1.04);
+}
+
+.dream-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  animation: floatTitle 2s infinite alternate;
+}
+
+.dream-card h3 {
+  font-family: 'Pacifico', cursive;
+  color: #3a4ca8;
+  margin-bottom: 8px;
+}
+
+.dream-card p {
+  font-size: 1.1rem;
+  color: #444;
+}
+
+.dream-card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 32px;
+}
