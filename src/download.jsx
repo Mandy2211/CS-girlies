@@ -33,7 +33,7 @@ const DownloadPage = () => {
             <h2>{proj.title}</h2>
             <p><strong>Created:</strong> {proj.created}</p>
             <p><strong>Length:</strong> {proj.length}</p>
-            <p><strong>Type:</strong> {proj.type}</p>
+            
             <div className="button-row">
               <button>View</button>
               <button>Edit</button>

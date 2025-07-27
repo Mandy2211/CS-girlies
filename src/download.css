@@ -1,59 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+
 .download-wrapper {
-  background: linear-gradient(to bottom right, #ffe6f0, #d8f3dc);
+  background: linear-gradient(to bottom right, #e5d4f9, #fbd6ec);
   min-height: 100vh;
-  padding: 2rem;
+  padding: 4rem 2rem;
   font-family: 'Caveat', cursive;
   text-align: center;
 }
 
 .download-wrapper h1 {
-  font-size: 2.5rem;
-  color: #4d194d;
-  margin-bottom: 2rem;
+  font-size: 4rem;
+  color: #3a2d79;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.download-wrapper p {
+  font-size: 1.7rem;
+  color: #6a307d;
+  margin-bottom: 2.5rem;
 }
 
 .project-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3rem;
+  padding: 1rem 0;
 }
 
 .project-card {
-  background: #ffffffcc;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  width: 280px;
+  height: 280px;
+  background-color:  #faf9af;
+  border-radius: 28px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 22px rgba(160, 111, 111, 0.12);
 }
 
 .project-card h2 {
-  font-size: 1.2rem;
+  font-size: 2rem;
   color: #1b4332;
+  margin-bottom: 0.5rem;
 }
 
 .project-card p {
-  margin: 0.3rem 0;
-  font-size: 1rem;
-  color: #333;
+  font-size: 1.5rem;
+  color: #4d194d;
+  margin: 0.2rem 0;
 }
 
 .button-row {
-  margin-top: 1rem;
   display: flex;
-  justify-content: space-evenly;
-  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1rem;
 }
 
 .button-row button {
-  background-color: #ccc;
-  padding: 6px 12px;
-  border-radius: 8px;
+  background: linear-gradient(to right, #fca3b7, #f9b3e5);
+  padding: 8px 18px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 1rem;
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: #4d194d;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .button-row button:hover {
-  background-color: #bde0c6;
+  background: linear-gradient(to right, #f98cad, #f687df);
 }
