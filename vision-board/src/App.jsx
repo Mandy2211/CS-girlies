@@ -4,6 +4,10 @@ import { AuthProvider, useAuth } from './Context/AuthContext';
 import AuthModal from './components/AuthModal';
 import Dashboard from './pages/dashboard';
 import LoadingSpinner from './components/LoadingSpin';
+import PreviewScreen from './preview';
+import LoadingScreen from './loading';
+import './preview.css';
+import './loading.css';
 import './App.css';
 
 // Main App Component
@@ -64,6 +68,14 @@ const AppContent = () => {
           <Route 
             path="/dashboard" 
             element={user ? <Dashboard /> : <Navigate to="/" replace />} 
+          />
+          <Route
+            path="/preview"
+            element={<PreviewScreen />}
+          />
+          <Route
+            path="/loading"
+            element={<LoadingScreen />}
           />
         </Routes>
       </div>
