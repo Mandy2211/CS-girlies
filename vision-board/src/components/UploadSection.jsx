@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import apiService from '../services/apiService';
+import { useNavigate } from 'react-router-dom';
 
 const UploadSection = ({ onProcessingStart, onProcessingComplete, onError }) => {
   const [dreamInput, setDreamInput] = useState('');
@@ -8,6 +9,8 @@ const UploadSection = ({ onProcessingStart, onProcessingComplete, onError }) => 
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState('');
   const fileInputRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -57,6 +60,7 @@ const UploadSection = ({ onProcessingStart, onProcessingComplete, onError }) => 
     onProcessingStart();
     setIsGenerating(true);
     setProgress('Starting dream processing...');
+    navigate('/loading');
     
     try {
       // Call the backend API to process the dream
@@ -65,6 +69,7 @@ const UploadSection = ({ onProcessingStart, onProcessingComplete, onError }) => 
       if (result.success) {
         setProgress('Dream processed successfully!');
         onProcessingComplete && onProcessingComplete(result.data);
+        navigate('/preview', { state: { output: result.data } });
       } else {
         throw new Error(result.message || 'Failed to process dream');
       }

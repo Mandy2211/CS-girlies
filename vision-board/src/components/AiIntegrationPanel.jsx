@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { generateStory, drawingToAnimation } from '../services/aiIntegrationService';
+import { useNavigate } from 'react-router-dom';
 
 export default function AiIntegrationPanel() {
   const [input, setInput] = useState('');
@@ -12,12 +13,16 @@ export default function AiIntegrationPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const navigate = useNavigate();
+
   const handleStory = async () => {
     setLoading(true); setError(''); setStory(''); setAudioUrl('');
+    navigate('/loading');
     try {
       const res = await generateStory({ input, mode, tts });
       setStory(res.data?.story || '');
       setAudioUrl(res.data?.audioUrl || '');
+      navigate('/preview', { state: { output: res.data } });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -29,9 +34,11 @@ export default function AiIntegrationPanel() {
     const file = e.target.files[0];
     if (!file) return;
     setDrawing(file); setLoading(true); setError(''); setAnimationUrl('');
+    navigate('/loading');
     try {
       const res = await drawingToAnimation(file);
       setAnimationUrl(res.animationUrl);
+      navigate('/preview', { state: { output: res } });
     } catch (e) {
       setError(e.message);
     } finally {
