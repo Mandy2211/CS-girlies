@@ -1,40 +1,39 @@
-# Vision Board
+# 🌈 DreamCraft: Turn Imagination into Interactive Media
 
-Turn your dreams into animated stories with AI.
+**Track:** AI/ML • Education • ArtTech  
+**Demo:** _[Insert deployed link here]_  
+**Backend:** Render/Railway • **Frontend:** Vercel
 
-## Features
+DreamCraft is a no-code platform that transforms anyone’s creativity—drawings, dreams, vision boards, and even to-do lists—into magical, animated stories using generative AI. It empowers children, creatives, and everyday users to bring their imagination to life with the help of modern AI tools.
 
-- **Dream Input**: Describe your dreams with text or upload images
-- **AI Story Generation**: OpenAI creates magical stories from your input
-- **Animation Creation**: Replicate AI generates animations from text/images
-- **Audio Narration**: Text-to-speech brings stories to life
-- **Project Gallery**: View and manage all your created dreams
+---
 
-## Quick Start
+## ✨ Features
 
-1. **Install dependencies:**
-   ```bash
-   # Backend
-   cd backend && npm install
-   
-   # Frontend
-   cd vision-board && npm install
-   ```
+- **🖌️ Upload Input**: Drawings or written dreams, journal entries, goals, and to-dos
+- **🌀 Sketch to Animation**: Convert user-uploaded images into short animated clips using AI
+- **📖 AI Story Mode**: Generate interactive stories with narration based on user input
+- **🧠 Creative Suggestions**: Inspire story ideas through AI-enhanced prompts
+- **🖼️ Vision Board Builder**: Design digital vision boards with AI-generated media
+- **📓 Dream Journal**: Log entries that can evolve into visual storytelling
+- **📂 Project Gallery**: Save and view previous creations
+- **🔐 Login & Persistence**: User authentication and long-term media storage
+- **🐣 Delightful UI**: Whimsical visuals, animations, and loading screens
 
-2. **Set up environment variables:**
-   - Copy `.env.example` to `.env` in both `backend/` and `vision-board/`
-   - Add your API keys (OpenAI, Replicate, Supabase)
 
-3. **Start the servers:**
-   ```bash
-   # Backend (port 5001)
-   cd backend && npm start
-   
-   # Frontend (port 3000)
-   cd vision-board && npm start
-   ```
+---
 
-4. **Open your browser** to `http://localhost:3000`
+## 👥 Team Responsibilities
+
+| Team Member | Responsibility |
+|-------------|----------------|
+| **Sonma**   | Page routing (React Router), Input UI (chat + drawing) |
+| **Mandy**   | Auth, database config, and Supabase media storage |
+| **Phani**   | Backend API integration, Dream Journal & Vision Board UI |
+| **Jenn**    | AI story generation using OpenAI + sketch-to-animation flow |
+| **Stuti**   | Gallery view, interactive preview, UX polish & loading animations |
+
+---
 
 ## Tech Stack
 
@@ -42,6 +41,36 @@ Turn your dreams into animated stories with AI.
 - **Backend**: Node.js, Express, OpenAI API, Replicate AI
 - **Database**: Supabase (PostgreSQL)
 - **File Storage**: Local uploads directory
+
+---
+
+## 🚀 Future Plans
+
+- 🎤 **Voice-to-Text Input**: Allow younger users to speak instead of type
+- 🎭 **Live Character Movement**: Add AI-powered animations in real-time
+- 🎶 **Sound Effects**: Enhance stories with AI-generated music
+- 🧪 **Classroom Pilots**: Gather feedback from teachers, parents, and kids
+
+---
+
+## 🧪 Getting Started
+
+```bash
+# Clone the repository
+git clone -b branch1 https://github.com/yourteam/dreamcraft.git
+cd dreamcraft
+
+# Install dependencies
+npm install
+
+# Start the frontend (Vercel will auto-deploy otherwise)
+npm run dev
+
+# Backend (if separated into /server)
+cd server
+npm install
+npm start
+   ```
 
 ## API Endpoints
 
