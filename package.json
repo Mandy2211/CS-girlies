@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@supabase/supabase-js": "^2.52.1",
-    "react-dropzone": "^14.3.8"
+    "express-rate-limit": "^8.0.1",
+    "react-dropzone": "^14.3.8",
+    "react-scripts": "^5.0.1"
   }
 }

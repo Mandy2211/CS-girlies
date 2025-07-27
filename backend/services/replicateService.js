@@ -50,13 +50,13 @@ class ReplicateService {
   async generateVideoFromImage(imageUrl, duration = 3) {
     try {
       console.log('Starting video generation from image');
-      
+      // Use a valid video_length value for stable-video-diffusion
       const output = await replicate.run(
         config.replicate.imageToVideoModel,
         {
           input: {
-            image: imageUrl,
-            video_length: duration,
+            input_image: imageUrl, // Correct key for most Replicate models
+            video_length: '14_frames_with_svd', // Valid value for this model
             fps: 8,
             motion_bucket_id: 127,
             cond_aug: 0.02,

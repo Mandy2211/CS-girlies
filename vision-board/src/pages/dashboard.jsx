@@ -7,6 +7,7 @@ import VisionBoard from '../components/VisionBoard';
 import DreamDetail from '../components/DreamDetail';
 import LoadingSpinner from '../components/LoadingSpin';
 import apiService from '../services/apiService';
+import AiIntegrationPanel from '../components/AiIntegrationPanel';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -152,13 +153,17 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* Upload Section */}
-            {showUploadSection && (
-              <UploadSection
-                onProcessingStart={handleProcessingStart}
-                onProcessingComplete={handleProcessingComplete}
-                onError={handleProcessingError}
-              />
+            {activeTab === 'create' && (
+              <>
+                <AiIntegrationPanel />
+                <UploadSection 
+                  onProcessingStart={handleProcessingStart}
+                  onProcessingComplete={handleProcessingComplete}
+                  onProcessingError={handleProcessingError}
+                  show={showUploadSection}
+                  setShow={setShowUploadSection}
+                />
+              </>
             )}
 
             {/* Dream Entry Section */}

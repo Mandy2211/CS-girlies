@@ -1,5 +1,6 @@
 const { supabase } = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 
 class SupabaseService {
   // Save project to database
@@ -208,4 +209,16 @@ class SupabaseService {
   }
 }
 
-module.exports = new SupabaseService(); 
+// Upload a file to Supabase Storage and return its public URL
+async function uploadFileToSupabaseStorage(localFilePath, storagePath) {
+  const fileBuffer = fs.readFileSync(localFilePath);
+  const { data, error } = await supabase.storage
+    .from('images') // Change 'images' to your bucket name if needed
+    .upload(storagePath, fileBuffer, { upsert: true });
+  if (error) throw error;
+  // Get public URL
+  const { publicUrl } = supabase.storage.from('images').getPublicUrl(storagePath).data;
+  return publicUrl;
+}
+
+module.exports = Object.assign(new SupabaseService(), { uploadFileToSupabaseStorage }); 

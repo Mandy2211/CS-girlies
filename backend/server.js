@@ -48,6 +48,10 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api', apiRoutes);
+app.use('/api/projects', require('./routes/projects'));
+
+// Register new AI integration router
+require('./routes/aiIntegration.register')(app);
 
 // 404 handler
 app.use('*', (req, res) => {

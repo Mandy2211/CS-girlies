@@ -20,19 +20,15 @@ router.post('/process-dream', authenticateUser, uploadMultiple, async (req, res)
       });
     }
 
-    // Start processing response
-    ResponseHandler.processing(res, 'Processing your dream...');
+    // Start processing response and return immediately
+    return ResponseHandler.processing(res, 'Processing your dream...');
 
     // Process the dream asynchronously
-    processDreamAsync(req.user.id, dreamText?.trim(), title, files)
-      .catch(error => {
-        console.error('Async dream processing error:', error);
-      });
-
-    return ResponseHandler.success(res, {
-      message: 'Dream processing started',
-      status: 'processing'
-    }, 'Dream processing initiated', 202);
+    // (this code will run after the response is sent)
+    // processDreamAsync(req.user.id, dreamText?.trim(), title, files)
+    //   .catch(error => {
+    //     console.error('Async dream processing error:', error);
+    //   });
 
   } catch (error) {
     console.error('Dream processing error:', error);

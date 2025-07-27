@@ -1,3 +1,5 @@
+import { supabase } from '../supabaseClient';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 class ApiService {
@@ -6,14 +8,20 @@ class ApiService {
   }
 
   // Get auth token from Supabase
-  getAuthToken() {
-    const session = JSON.parse(localStorage.getItem('supabase.auth.token'));
-    return session?.currentSession?.access_token;
+  async getAuthToken() {
+    // For Supabase JS v2
+    if (supabase.auth.getSession) {
+      const { data } = await supabase.auth.getSession();
+      return data?.session?.access_token;
+    }
+    // For Supabase JS v1
+    const session = supabase.auth.session && supabase.auth.session();
+    return session?.access_token;
   }
 
   // Generic request method
   async request(endpoint, options = {}) {
-    const token = this.getAuthToken();
+    const token = await this.getAuthToken();
     
     const config = {
       headers: {
@@ -41,7 +49,7 @@ class ApiService {
 
   // File upload request
   async uploadFile(endpoint, formData) {
-    const token = this.getAuthToken();
+    const token = await this.getAuthToken();
     
     const config = {
       method: 'POST',
@@ -136,19 +144,19 @@ class ApiService {
       formData.append('images', file);
     });
     
-    return this.uploadFile('/projects/process-dream', formData);
+    return this.uploadFile('/api/projects/process-dream', formData);
   }
 
   async getProjects(limit = 50, offset = 0) {
-    return this.request(`/projects?limit=${limit}&offset=${offset}`);
+    return this.request(`/api/projects?limit=${limit}&offset=${offset}`);
   }
 
   async getProject(projectId) {
-    return this.request(`/projects/${projectId}`);
+    return this.request(`/api/projects/${projectId}`);
   }
 
   async updateProject(projectId, updateData) {
-    return this.request(`/projects/${projectId}`, {
+    return this.request(`/api/projects/${projectId}`, {
       method: 'PUT',
       body: JSON.stringify(updateData),
     });
@@ -156,7 +164,7 @@ class ApiService {
 
   // Dream-specific methods
   async saveDream(dreamData) {
-    return this.request('/projects', {
+    return this.request('/api/projects', {
       method: 'POST',
       body: JSON.stringify(dreamData),
     });
@@ -168,15 +176,15 @@ class ApiService {
       if (value) queryParams.append(key, value);
     });
     
-    return this.request(`/projects?${queryParams.toString()}`);
+    return this.request(`/api/projects?${queryParams.toString()}`);
   }
 
   async searchDreams(query) {
-    return this.request(`/projects/search?q=${encodeURIComponent(query)}`);
+    return this.request(`/api/projects/search?q=${encodeURIComponent(query)}`);
   }
 
   async deleteProject(projectId) {
-    return this.request(`/projects/${projectId}`, {
+    return this.request(`/api/projects/${projectId}`, {
       method: 'DELETE',
     });
   }

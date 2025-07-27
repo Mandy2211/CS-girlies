@@ -14,7 +14,7 @@ module.exports = {
   
   supabase: {
     url: process.env.SUPABASE_URL,
-    serviceKey: process.env.SUPABASE_SERVICE_KEY
+    serviceKey: process.env.SUPABASE_KEY
   },
   
   fileUpload: {
