@@ -1,5 +1,6 @@
 const Replicate = require('replicate');
 const config = require('../config/services');
+const fileHandler = require('../utils/fileHandler');
 
 const replicate = new Replicate({
   auth: config.replicate.apiToken,
@@ -13,7 +14,7 @@ class ReplicateService {
   }
 
   // Generate animation from text prompt
-  async generateAnimationFromText(prompt, duration = 3) {
+  async generateAnimationFromText(prompt, duration = 3, userId = 'debug') {
     try {
       console.log('Starting animation generation from text:', prompt);
       
@@ -32,9 +33,29 @@ class ReplicateService {
         }
       );
 
+      console.log('Replicate animation output:', output);
+      // Handle both string and array output
+      let videoUrl = null;
+      if (typeof output === 'string' && output.startsWith('http')) {
+        videoUrl = output;
+      } else if (Array.isArray(output) && output.length > 0 && typeof output[0] === 'string') {
+        videoUrl = output[0];
+      }
+      let localPath = null;
+      let localUrl = null;
+      if (videoUrl) {
+        const downloadResult = await fileHandler.downloadFileFromUrl(videoUrl, userId, 'mp4');
+        if (downloadResult.success) {
+          localPath = downloadResult.filePath;
+          localUrl = fileHandler.getFileUrl(downloadResult.filename);
+        }
+      }
+
       return {
         success: true,
-        animationUrl: output,
+        animationUrl: videoUrl,
+        localPath,
+        localUrl,
         duration: duration
       };
     } catch (error) {
@@ -47,10 +68,9 @@ class ReplicateService {
   }
 
   // Generate video from image
-  async generateVideoFromImage(imageUrl, duration = 3) {
+  async generateVideoFromImage(imageUrl, duration = 3, userId = 'debug') {
     try {
       console.log('Starting video generation from image');
-      // Use a valid video_length value for stable-video-diffusion
       const output = await replicate.run(
         config.replicate.imageToVideoModel,
         {
@@ -65,9 +85,29 @@ class ReplicateService {
         }
       );
 
+      console.log('Replicate video output:', output);
+      // Handle both string and array output
+      let videoUrl = null;
+      if (typeof output === 'string' && output.startsWith('http')) {
+        videoUrl = output;
+      } else if (Array.isArray(output) && output.length > 0 && typeof output[0] === 'string') {
+        videoUrl = output[0];
+      }
+      let localPath = null;
+      let localUrl = null;
+      if (videoUrl) {
+        const downloadResult = await fileHandler.downloadFileFromUrl(videoUrl, userId, 'mp4');
+        if (downloadResult.success) {
+          localPath = downloadResult.filePath;
+          localUrl = fileHandler.getFileUrl(downloadResult.filename);
+        }
+      }
+
       return {
         success: true,
-        videoUrl: output,
+        videoUrl,
+        localPath,
+        localUrl,
         duration: duration
       };
     } catch (error) {

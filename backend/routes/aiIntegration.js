@@ -89,7 +89,8 @@ router.post('/drawing-to-animation', authenticateUser, upload.single('drawing'),
     }
     console.log('[DEBUG] Animation generation finished');
     return ResponseHandler.success(res, {
-      animationUrl: animationResult.videoUrl || animationResult.animationUrl
+      animationUrl: animationResult.videoUrl || animationResult.animationUrl,
+      localVideoPath: animationResult.localUrl // use the public URL
     }, 'Animation generated successfully');
   } catch (err) {
     console.error('AI Integration animation error:', err);

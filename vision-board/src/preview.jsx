@@ -65,7 +65,16 @@ const PreviewScreen = () => {
             </audio>
           )}
           {output.animationUrl && (
-            <video src={output.animationUrl} controls className="w-full max-h-64" />
+            <div>
+              <div>Remote Video Preview:</div>
+              <video src={output.animationUrl} controls className="w-full max-h-64" />
+            </div>
+          )}
+          {output.localVideoPath && (
+            <div>
+              <div>Local Video Preview:</div>
+              <video src={output.localVideoPath} controls className="w-full max-h-64" />
+            </div>
           )}
         </div>
       ) : (

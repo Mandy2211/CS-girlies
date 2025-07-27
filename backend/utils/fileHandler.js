@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config/services');
+const axios = require('axios');
 
 class FileHandler {
   // Save uploaded file
@@ -107,6 +108,36 @@ class FileHandler {
       return { success: true };
     } catch (error) {
       console.error('Directory creation error:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // Download a file from a URL and save it locally
+  async downloadFileFromUrl(url, userId, ext = 'mp4') {
+    try {
+      const filename = `${userId}-${uuidv4()}.${ext}`;
+      const filePath = path.join(config.fileUpload.uploadDir, filename);
+      const response = await axios({
+        method: 'GET',
+        url,
+        responseType: 'stream',
+      });
+      await new Promise((resolve, reject) => {
+        const stream = response.data.pipe(fs.createWriteStream(filePath));
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+      return {
+        success: true,
+        filename,
+        filePath,
+        ext
+      };
+    } catch (error) {
+      console.error('File download error:', error);
       return {
         success: false,
         error: error.message
