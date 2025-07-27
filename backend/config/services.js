@@ -8,8 +8,8 @@ module.exports = {
   
   replicate: {
     apiToken: process.env.REPLICATE_API_TOKEN,
-    animationModel: 'cjwbw/animagine-xl-3.1:6afe2e6b27dad2d6f480b59195c221884b6acc589ff4d05ff0e5fc058690fbb9',
-    imageToVideoModel: 'cjwbw/videocrafter:<latest_image2video_version>'
+    animationModel: 'anotherjesse/animagine-xl-3.1:bfb3f62a8c23e24a34cede7ab7d9736d4121143d87f5c110582e9ac0a5abc19e',
+    imageToVideoModel: 'stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438'
   },
   
   supabase: {
