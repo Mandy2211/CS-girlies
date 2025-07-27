@@ -1,207 +1,386 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState } from 'react'; 
 import { useAuth } from '../Context/AuthContext';
 import UploadSection from '../components/UploadSection';
-import DreamEntry from '../components/DreamEntry';
-import DreamList from '../components/DreamList';
-import VisionBoard from '../components/VisionBoard';
-import DreamDetail from '../components/DreamDetail';
+import ProjectGallery from '../components/ProjectGallery';
 import LoadingSpinner from '../components/LoadingSpin';
-import apiService from '../services/apiService';
-import AiIntegrationPanel from '../components/AiIntegrationPanel';
+import { supabase } from '../supabaseClient';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('create');
   const [isLoading, setIsLoading] = useState(false);
-  const [processingStatus, setProcessingStatus] = useState('');
-  const [showUploadSection, setShowUploadSection] = useState(false);
-  const [showDreamEntry, setShowDreamEntry] = useState(false);
-  const [selectedDream, setSelectedDream] = useState(null);
+  const [userInput, setUserInput] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
+  const handleImageUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      setSelectedFiles(files);
+    };
+    input.click();
+  };
 
+  const handleFileUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      setSelectedFiles(files);
+    };
+    input.click();
+  };
 
-  const handleProcessingStart = () => {
-    setProcessingStatus('Processing your dream...');
+  const handleSubmit = async () => {
+    if (!userInput.trim() && selectedFiles.length === 0) {
+      alert('Please enter some text or upload files');
+      return;
+    }
+
     setIsLoading(true);
-  };
-
-  const handleProcessingComplete = (result) => {
-    setProcessingStatus('Dream processed successfully!');
-    setIsLoading(false);
-    setTimeout(() => {
-      setProcessingStatus('');
-      setShowUploadSection(false);
-    }, 2000);
-  };
-
-  const handleProcessingError = (error) => {
-    setProcessingStatus(`Error: ${error}`);
-    setIsLoading(false);
-    setTimeout(() => {
-      setProcessingStatus('');
-    }, 3000);
-  };
-
-  const handleDreamSaved = (dream) => {
-    setProcessingStatus('Dream saved successfully!');
-    setShowDreamEntry(false);
-    setTimeout(() => {
-      setProcessingStatus('');
-    }, 2000);
-  };
-
-  const handleDreamSelect = (dream) => {
-    setSelectedDream(dream);
-  };
-
-  const handleDreamClose = () => {
-    setSelectedDream(null);
-  };
-
-  const handleSignOut = async () => {
+    
     try {
-      await apiService.supabase?.auth.signOut();
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([
+          {
+            user_id: user.id,
+            content: userInput,
+            type: 'dream',
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (error) {
+        console.error('Error saving project:', error);
+        alert('Error saving project');
+      } else {
+        alert('Project created successfully!');
+        setUserInput('');
+        setSelectedFiles([]);
+      }
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('Error:', error);
+      alert('Something went wrong');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (!user) return <LoadingSpinner />;
 
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #fff6b7 0%, #f7c6e0 50%, #b6e2d3 100%)',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+    padding: '16px'
+  };
+
+  const headerStyle = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    paddingTop: '24px',
+    paddingBottom: '24px'
+  };
+
+  const navContainerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '32px'
+  };
+
+  const tabsStyle = {
+    display: 'flex',
+    gap: '16px'
+  };
+
+  const getTabStyle = (isActive) => ({
+    padding: '12px 32px',
+    borderRadius: '50px',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    background: isActive 
+      ? 'linear-gradient(90deg, #ffb6a3, #ffd6b0)' 
+      : 'rgba(255, 255, 255, 0.6)',
+    color: isActive ? 'white' : '#374151',
+    boxShadow: '0 2px 12px rgba(182, 226, 211, 0.6)',
+    fontFamily: 'inherit'
+  });
+
+  const signOutStyle = {
+    padding: '12px 24px',
+    borderRadius: '50px',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    background: 'linear-gradient(90deg, #a7bfff, #b6e2d3)',
+    color: '#1f2937',
+    boxShadow: '0 2px 12px rgba(182, 226, 211, 0.6)',
+    fontFamily: 'inherit'
+  };
+
+  const mainContentStyle = {
+    maxWidth: '1000px',
+    margin: '0 auto',
+    padding: '0 16px'
+  };
+
+  const centerContentStyle = {
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '32px'
+  };
+
+  const headingContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px'
+  };
+
+  const titleStyle = {
+    fontSize: '3rem',
+    fontWeight: 'bold',
+    margin: '0 0 16px 0',
+    fontFamily: '"Pacifico", cursive, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
+    color: '#3a4ca8',
+    textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+  };
+
+  const subtitleStyle = {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    margin: '0',
+    color: '#374151',
+    fontFamily: 'inherit'
+  };
+
+  const descriptionStyle = {
+    fontSize: '1rem',
+    color: '#6b7280',
+    maxWidth: '600px',
+    margin: '0 auto',
+    lineHeight: '1.6',
+    fontFamily: 'inherit'
+  };
+
+  const buttonsContainerStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: '16px',
+    flexWrap: 'wrap'
+  };
+
+  const uploadButtonStyle = (gradient) => ({
+    padding: '12px 32px',
+    borderRadius: '50px',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    background: gradient,
+    color: '#1f2937',
+    boxShadow: '0 4px 20px rgba(255, 182, 163, 0.4)',
+    fontFamily: 'inherit',
+    minWidth: '160px'
+  });
+
+  const textareaStyle = {
+    width: '100%',
+    maxWidth: '700px',
+    height: '120px',
+    padding: '16px',
+    borderRadius: '16px',
+    resize: 'none',
+    border: '2px solid transparent',
+    outline: 'none',
+    background: 'linear-gradient(135deg, #fff6b7 0%, #f7c6e0 100%)',
+    color: '#3a4ca8',
+    fontFamily: 'inherit',
+    fontSize: '1rem',
+    margin: '0 auto',
+    display: 'block',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale'
+  };
+
+  const submitButtonStyle = {
+    padding: '12px 40px',
+    borderRadius: '50px',
+    fontWeight: 'bold',
+    fontSize: '1.1rem',
+    border: 'none',
+    cursor: isLoading ? 'not-allowed' : 'pointer',
+    transition: 'all 0.3s ease',
+    background: isLoading 
+      ? 'linear-gradient(90deg, #d1d5db, #9ca3af)' 
+      : 'linear-gradient(90deg, #ff6b95, #ff9472, #ffcd56)',
+    color: isLoading ? '#6b7280' : 'white',
+    textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+    boxShadow: isLoading 
+      ? '0 4px 20px rgba(0,0,0,0.1)' 
+      : '0 8px 32px rgba(255, 107, 149, 0.4)',
+    fontFamily: 'inherit'
+  };
+
+  const loadingStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '400px',
+    gap: '16px'
+  };
+
+  const filesContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px'
+  };
+
+  const fileTagsStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '12px',
+    justifyContent: 'center'
+  };
+
+  const fileTagStyle = {
+    padding: '8px 16px',
+    borderRadius: '50px',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    background: '#fff6b7',
+    color: '#3a4ca8',
+    border: '2px solid #f7c6e0',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-100 to-cyan-200 p-4">
-      {/* Navigation Header */}
-      <header className="max-w-6xl mx-auto py-4">
-        <div className="flex justify-between items-center mb-8">
-          {/* Navigation Tabs */}
-          <div className="flex space-x-4">
+    <div style={containerStyle}>
+      <header style={headerStyle}>
+        <div style={navContainerStyle}>
+          <div style={tabsStyle}>
             <button
-              className={`py-2 px-6 rounded-full font-medium transition-colors ${
-                activeTab === 'create' 
-                  ? 'bg-pink-200 text-gray-800' 
-                  : 'bg-white bg-opacity-60 text-gray-700 hover:bg-opacity-80'
-              }`}
+              style={getTabStyle(activeTab === 'create')}
               onClick={() => setActiveTab('create')}
             >
-              Create
+              Home
             </button>
             <button
-              className={`py-2 px-6 rounded-full font-medium transition-colors ${
-                activeTab === 'journal' 
-                  ? 'bg-pink-200 text-gray-800' 
-                  : 'bg-white bg-opacity-60 text-gray-700 hover:bg-opacity-80'
-              }`}
-              onClick={() => setActiveTab('journal')}
+              style={getTabStyle(activeTab === 'gallery')}
+              onClick={() => setActiveTab('gallery')}
             >
-              Journal
-            </button>
-            <button
-              className={`py-2 px-6 rounded-full font-medium transition-colors ${
-                activeTab === 'vision-board' 
-                  ? 'bg-pink-200 text-gray-800' 
-                  : 'bg-white bg-opacity-60 text-gray-700 hover:bg-opacity-80'
-              }`}
-              onClick={() => setActiveTab('vision-board')}
-            >
-              Vision Board
+              Gallery
             </button>
           </div>
-
-          {/* Sign Out Button */}
           <button
-            onClick={handleSignOut}
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full transition-colors"
+            onClick={() => supabase.auth.signOut()}
+            style={signOutStyle}
           >
             Sign Out
           </button>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto">
+      <div style={mainContentStyle}>
         {isLoading ? (
-          <div className="flex justify-center items-center my-20">
+          <div style={loadingStyle}>
             <LoadingSpinner />
-            <p className="ml-4 text-gray-700 text-xl">Creating magic...</p>
+            <p style={{ color: '#374151', fontSize: '1.25rem', margin: 0 }}>Creating magic...</p>
           </div>
         ) : activeTab === 'create' ? (
-          <div className="text-center">
-            {/* Main Heading */}
-            <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
-                Realise your dream
-              </h1>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
-                Create your story
-              </h2>
+          <div style={centerContentStyle}>
+            <div style={headingContainerStyle}>
+              <h1 style={titleStyle}>DreamCanvas ✨</h1>
+              <h2 style={subtitleStyle}>Realise your dream</h2>
+              <h3 style={subtitleStyle}>Create your story</h3>
+              <p style={descriptionStyle}>
+                Welcome to your magical journaling space. Write your dreams, stories, and sketches. 
+                Let our AI bring them to life with animation and creativity! 🎨
+              </p>
             </div>
 
-            {/* Start Creation Button */}
-            {!showUploadSection && !showDreamEntry && (
-              <div className="text-center mb-8 space-y-4">
-                <button
-                  onClick={() => setShowUploadSection(true)}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-all duration-300 mr-4"
-                >
-                  Quick Create
-                </button>
-                <button
-                  onClick={() => setShowDreamEntry(true)}
-                  className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-all duration-300"
-                >
-                  Log Dream
-                </button>
-              </div>
-            )}
+            <div style={buttonsContainerStyle}>
+              <button 
+                onClick={handleImageUpload}
+                style={uploadButtonStyle('linear-gradient(90deg, #ffb6a3, #ffd6b0)')}
+              >
+                🖼️ Upload images
+              </button>
+              <button 
+                onClick={handleFileUpload}
+                style={uploadButtonStyle('linear-gradient(90deg, #a7bfff, #b6e2d3)')}
+              >
+                📁 Upload files
+              </button>
+            </div>
 
-            {activeTab === 'create' && (
-              <>
-                <AiIntegrationPanel />
-                <UploadSection 
-                  onProcessingStart={handleProcessingStart}
-                  onProcessingComplete={handleProcessingComplete}
-                  onProcessingError={handleProcessingError}
-                  show={showUploadSection}
-                  setShow={setShowUploadSection}
-                />
-              </>
-            )}
-
-            {/* Dream Entry Section */}
-            {showDreamEntry && (
-              <DreamEntry
-                onDreamSaved={handleDreamSaved}
-                onCancel={() => setShowDreamEntry(false)}
-              />
-            )}
-
-            {/* Processing Status */}
-            {processingStatus && (
-              <div className="mt-8 text-center">
-                <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full">
-                  <LoadingSpinner size="sm" />
-                  <span className="ml-2">{processingStatus}</span>
+            {selectedFiles.length > 0 && (
+              <div style={filesContainerStyle}>
+                <h3 style={{ color: '#3a4ca8', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>
+                  Selected Files: ✨
+                </h3>
+                <div style={fileTagsStyle}>
+                  {selectedFiles.map((file, index) => (
+                    <span key={index} style={fileTagStyle}>
+                      📎 {file.name}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}
-          </div>
-        ) : activeTab === 'journal' ? (
-          <DreamList 
-            onDreamSelect={handleDreamSelect}
-            onRefresh={() => setProcessingStatus('')}
-          />
-        ) : activeTab === 'vision-board' ? (
-          <VisionBoard />
-        ) : null}
-      </div>
 
-      {/* Dream Detail Modal */}
-      {selectedDream && (
-        <DreamDetail
-          dream={selectedDream}
-          onClose={handleDreamClose}
-          onUpdate={(updatedDream) => setSelectedDream(updatedDream)}
-        />
-      )}
+            <div>
+              <textarea
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="✨ Enter your thoughts, ideas, dreams... Let your imagination flow! 🌟"
+                style={textareaStyle}
+                onFocus={(e) => {
+                  e.target.style.border = '2px solid #a7bfff';
+                  e.target.style.boxShadow = '0 8px 32px rgba(167, 191, 255, 0.3)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '2px solid transparent';
+                  e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+                }}
+              />
+            </div>
+
+            <div>
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading}
+                style={submitButtonStyle}
+              >
+                {isLoading ? '✨ Creating magic...' : '🚀 Create Dream'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ 
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(247,198,224,0.2) 100%)',
+            borderRadius: '24px',
+            padding: '32px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}>
+            <ProjectGallery />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
