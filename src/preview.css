@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+
+.preview-wrapper {
+  background: linear-gradient(to bottom right, #d0c2f3, #fbd6ec); /* match journal bg */
+  height: 100vh;
+  font-family: 'Caveat', cursive;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 6vh;
+  text-align: center;
+}
+
+.preview-wrapper h1 {
+  font-size: 6rem;
+  color: #3a2d79; /* matched deep purple tone */
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.preview-box {
+  width: 400px;
+  height: 250px;
+  background-color: #fff0f8;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.play-button {
+  font-size: 2rem;
+  color: #6a307d;
+  border: 2px solid #6a307d;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  line-height: 58px;
+  text-align: center;
+  background-color: #fce3ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.play-button:hover {
+  background-color: #eacbf2;
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.button-row button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  background-color: #f6d8f8;
+  font-family: 'Caveat', cursive;
+  font-size: 2rem;
+  color: #4d194d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+
+.button-row button:hover {
+  background-color: #ecd8f8;
+}
+
+.narration-audio {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem; 
+  width: 250px;
+  filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.1));
+}

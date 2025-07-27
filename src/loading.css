@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+
+.loading-screen {
+  height: 100vh;
+  background: linear-gradient(to bottom right, #d0c2f3, #fbd6ec); /* updated pastel background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Caveat', cursive;
+}
+
+.container {
+  text-align: center;
+}
+
+.container h1 {
+  font-size: 4rem;
+  color: #3a2d79; /* deep purple like the journal title */
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.container p {
+  font-size: 2rem;
+  color: #6a307d; /* subtle purple-pink tone */
+  margin-top: 0;
+  font-family: 'Caveat', cursive;
+}
+
+.dot-loader {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #6a307d; /* matched the button and text accent color */
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+  }
+  40% {
+    transform: scale(1.2);
+  }
+}
