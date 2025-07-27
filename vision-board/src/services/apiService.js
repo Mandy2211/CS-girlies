@@ -130,21 +130,15 @@ class ApiService {
   }
 
   // Project Management
-  async processDream(dreamText, title, files = []) {
-    const formData = new FormData();
-    
-    if (dreamText) {
-      formData.append('dreamText', dreamText);
-    }
-    if (title) {
-      formData.append('title', title);
-    }
-    
-    files.forEach((file, index) => {
-      formData.append('images', file);
+  async processDream(dreamText, title, imagePaths = []) {
+    return this.request('/api/projects/process-dream', {
+      method: 'POST',
+      body: JSON.stringify({
+        dreamText,
+        title,
+        imagePaths
+      }),
     });
-    
-    return this.uploadFile('/api/projects/process-dream', formData);
   }
 
   async getProjects(limit = 50, offset = 0) {

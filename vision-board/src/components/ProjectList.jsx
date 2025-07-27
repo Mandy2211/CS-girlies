@@ -46,7 +46,7 @@ const ProjectList = () => {
             <a
               href={supabase.storage
                 .from('user-media')
-                .getPublicUrl(`${file.name}`).data.publicUrl}
+                .getPublicUrl(user.id + '/' + file.name).data.publicUrl}
               target="_blank" rel="noopener noreferrer"
             >
               {file.name}

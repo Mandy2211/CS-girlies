@@ -47,19 +47,22 @@ const auth = async (req, res, next) => {
 };
 
 // Main dream processing endpoint
-router.post('/process-dream', auth, upload.array('images', 5), async (req, res) => {
+router.post('/process-dream', auth, async (req, res) => {
   try {
-    const { dreamText, title } = req.body;
-    const files = req.files || [];
-    
-    if (!dreamText?.trim() && files.length === 0) {
+    const { dreamText, title, imagePaths } = req.body;
+    if (!dreamText?.trim() && (!imagePaths || imagePaths.length === 0)) {
       return res.status(400).json({ error: 'Dream text or images required' });
     }
-
-    // Process dream asynchronously
-    processDreamAsync(req.user.id, dreamText?.trim(), title, files);
-    
-    res.json({ message: 'Dream processing started', status: 'processing' });
+    // Save to database
+    await supabaseService.saveProject({
+      userId: req.user.id,
+      title: title || 'Untitled Dream',
+      content: dreamText || '',
+      imagePaths: imagePaths || [],
+      type: 'dream',
+      status: 'completed',
+    });
+    res.json({ success: true, message: 'Dream logged successfully' });
   } catch (error) {
     console.error('Process dream error:', error);
     res.status(500).json({ error: 'Failed to process dream' });

@@ -16,9 +16,14 @@ const UploadMedia = () => {
     const filePath = `${user.id}/${Date.now()}_${file.name}`;
     const { error } = await supabase.storage
       .from('user-media')
-      .upload(filePath, file);
+      .upload(filePath, file, { upsert: true });
 
-    setStatus(error ? `Error: ${error.message}` : 'File uploaded successfully.');
+    let publicUrl = null;
+    if (!error) {
+      const result = supabase.storage.from('user-media').getPublicUrl(filePath).data;
+      publicUrl = result.publicUrl;
+    }
+    setStatus(error ? `Error: ${error.message}` : `File uploaded successfully. Public URL: ${publicUrl}`);
   };
 
   return (

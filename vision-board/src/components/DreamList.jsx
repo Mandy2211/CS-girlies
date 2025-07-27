@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import apiService from '../services/apiService';
 import LoadingSpinner from './LoadingSpin';
+import { supabase } from '../supabaseClient';
 
 const DreamList = ({ onDreamSelect, onRefresh }) => {
   const { user } = useAuth();
@@ -36,7 +37,20 @@ const DreamList = ({ onDreamSelect, onRefresh }) => {
 
   useEffect(() => {
     fetchDreams();
+    fetchUserMedia();
   }, []);
+
+  const [userMediaFiles, setUserMediaFiles] = useState([]);
+
+  const fetchUserMedia = async () => {
+    if (!user) return;
+    const { data: files, error } = await supabase.storage
+      .from('user-media')
+      .list(`private/${user.id}/`, { limit: 100 });
+    if (!error && files) {
+      setUserMediaFiles(files);
+    }
+  };
 
   const fetchDreams = async () => {
     try {
@@ -124,6 +138,23 @@ const DreamList = ({ onDreamSelect, onRefresh }) => {
       
       return sortOrder === 'desc' ? comparison : -comparison;
     });
+
+  // If no dreams in the API response, try to get all locally stored dream logs
+  let allDreamLogs = [];
+  // Show all local dream logs if the API returned zero projects (not just after filtering)
+  const noDreamsInDb = !Array.isArray(dreams) || dreams.length === 0;
+  if (noDreamsInDb) {
+    const local = localStorage.getItem('allDreamLogs');
+    if (local) {
+      try {
+        allDreamLogs = JSON.parse(local);
+      } catch {}
+    }
+  }
+  // Debug logs
+  console.log('Dreams from DB:', dreams);
+  console.log('All local dreams:', allDreamLogs);
+  console.log('noDreamsInDb:', noDreamsInDb);
 
   const handleDreamClick = (dream) => {
     onDreamSelect && onDreamSelect(dream);
@@ -223,20 +254,67 @@ const DreamList = ({ onDreamSelect, onRefresh }) => {
       {/* Dreams List */}
       <div className="space-y-4">
         {filteredAndSortedDreams.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <svg className="h-24 w-24 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+          noDreamsInDb && allDreamLogs.length > 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold text-gray-800 mb-6">All Dreams (Local)</h3>
+              {allDreamLogs.map((dream, idx) => (
+                <div key={idx} className="mb-8 p-6 bg-white rounded shadow">
+                  <div className="mb-2 text-gray-700 font-bold">{dream.title}</div>
+                  <div className="mb-2 text-gray-700">{dream.content}</div>
+                  {dream.dreamDate && (
+                    <div className="mb-2 text-gray-500 text-sm">Date: {dream.dreamDate}</div>
+                  )}
+                  {dream.mood && (
+                    <div className="mb-2 text-gray-500 text-sm">Mood: {dream.mood}</div>
+                  )}
+                  {dream.dreamType && (
+                    <div className="mb-2 text-gray-500 text-sm">Type: {dream.dreamType}</div>
+                  )}
+                  {dream.tags && (
+                    <div className="mb-2 text-gray-500 text-sm">Tags: {dream.tags}</div>
+                  )}
+                  {(dream.isLucid || dream.isRecurring) && (
+                    <div className="mb-2 text-gray-500 text-sm">
+                      {dream.isLucid && <span>Lucid Dream </span>}
+                      {dream.isRecurring && <span>Recurring Dream</span>}
+                    </div>
+                  )}
+                  {/* Only show images if they exist in Supabase Storage */}
+                  {Array.isArray(dream.imagePaths) && dream.imagePaths.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {dream.imagePaths.map((path) => {
+                        // We assume the image was uploaded, but if you want to check existence, you could fetch the file list and filter here
+                        const publicUrl = supabase.storage
+                          .from('user-media')
+                          .getPublicUrl(path).data.publicUrl;
+                        if (path.match(/\.(jpg|jpeg|png)$/i)) {
+                          return (
+                            <img key={path} src={publicUrl} alt={path} className="w-16 h-16 object-cover rounded" />
+                          );
+                        } else {
+                          return null;
+                        }
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            <h3 className="text-xl font-medium text-gray-700 mb-2">No dreams found</h3>
-            <p className="text-gray-500">
-              {searchTerm || filterType !== 'all' || filterMood !== 'all' 
-                ? 'Try adjusting your search or filters'
-                : 'Start by logging your first dream!'
-              }
-            </p>
-          </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <svg className="h-24 w-24 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium text-gray-700 mb-2">No dreams found</h3>
+              <p className="text-gray-500">
+                {searchTerm || filterType !== 'all' || filterMood !== 'all' 
+                  ? 'Try adjusting your search or filters'
+                  : 'Start by logging your first dream!'}
+              </p>
+            </div>
+          )
         ) : (
           filteredAndSortedDreams.map(dream => (
             <div
@@ -285,6 +363,23 @@ const DreamList = ({ onDreamSelect, onRefresh }) => {
                   {truncateText(dream.content || dream.story || 'No description available')}
                 </p>
               </div>
+              {/* Dream Images from imagePaths */}
+              {Array.isArray(dream.metadata?.imagePaths) && dream.metadata.imagePaths.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {dream.metadata.imagePaths.map((path) => {
+                    const publicUrl = supabase.storage
+                      .from('user-media')
+                      .getPublicUrl(path).data.publicUrl;
+                    if (path.match(/\.(jpg|jpeg|png)$/i)) {
+                      return (
+                        <img key={path} src={publicUrl} alt={path} className="w-16 h-16 object-cover rounded" />
+                      );
+                    } else {
+                      return null;
+                    }
+                  })}
+                </div>
+              )}
 
               {/* Tags */}
               {dream.metadata?.tags && (
@@ -326,6 +421,27 @@ const DreamList = ({ onDreamSelect, onRefresh }) => {
                     Audio
                   </span>
                 )}
+              </div>
+              {/* User Media Files */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {userMediaFiles.map(file => {
+                  const publicUrl = supabase.storage
+                    .from('user-media')
+                    .getPublicUrl(`private/${user.id}/${file.name}`).data.publicUrl;
+                  if (file.name.endsWith('.txt')) {
+                    return (
+                      <a key={file.name} href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                        Dream Text
+                      </a>
+                    );
+                  } else if (file.name.match(/\.(jpg|jpeg|png)$/i)) {
+                    return (
+                      <img key={file.name} src={publicUrl} alt={file.name} className="w-16 h-16 object-cover rounded" />
+                    );
+                  } else {
+                    return null;
+                  }
+                })}
               </div>
             </div>
           ))

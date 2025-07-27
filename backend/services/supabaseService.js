@@ -19,7 +19,10 @@ class SupabaseService {
           audio_url: projectData.audioUrl,
           type: projectData.type || 'dream',
           status: projectData.status || 'completed',
-          metadata: projectData.metadata || {},
+          metadata: {
+            ...(projectData.metadata || {}),
+            imagePaths: projectData.imagePaths || []
+          },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }])

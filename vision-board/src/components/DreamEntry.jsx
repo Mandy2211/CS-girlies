@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import apiService from '../services/apiService';
+import { supabase } from '../supabaseClient';
 
 const DreamEntry = ({ onDreamSaved, onCancel }) => {
   const { user } = useAuth();
@@ -97,14 +98,58 @@ const DreamEntry = ({ onDreamSaved, onCancel }) => {
 
     setIsSubmitting(true);
     try {
+      // Debug: log user and access token
+      console.log('Log Dream: user', user);
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Log Dream: access token', sessionData?.session?.access_token);
+      // Upload images to user-media bucket and collect storage paths
+      const imagePaths = [];
+      for (const file of files) {
+        const storagePath = `private/${user.id}/${Date.now()}_${file.name}`;
+        console.log('Uploading image to storagePath:', storagePath);
+        console.log('Image file:', file, 'constructor:', file.constructor.name, 'size:', file.size, 'type:', file.type);
+        const { data, error } = await supabase.storage
+          .from('user-media')
+          .upload(storagePath, file, { upsert: true });
+        if (error) {
+          console.error('Supabase upload error (image):', error);
+        } else {
+          imagePaths.push(storagePath);
+        }
+      }
+
       const result = await apiService.processDream(
         formData.content,
         formData.title || 'Untitled Dream',
-        files
+        imagePaths
       );
+      console.log('processDream result:', result);
+      if (!result.success) {
+        console.error('processDream error:', result);
+      }
 
       if (result.success) {
         onDreamSaved && onDreamSaved(result.data);
+        // Store all dreams locally
+        let allDreams = [];
+        try {
+          allDreams = JSON.parse(localStorage.getItem('allDreamLogs')) || [];
+        } catch (e) {
+          allDreams = [];
+        }
+        allDreams.push({
+          title: formData.title || 'Untitled Dream',
+          content: formData.content,
+          imagePaths: imagePaths,
+          tags: formData.tags,
+          mood: formData.mood,
+          dreamType: formData.dreamType,
+          isLucid: formData.isLucid,
+          isRecurring: formData.isRecurring,
+          dreamDate: formData.dreamDate
+        });
+        localStorage.setItem('allDreamLogs', JSON.stringify(allDreams));
+        console.log('Saved allDreamLogs:', allDreams);
         // Reset form
         setFormData({
           title: '',
