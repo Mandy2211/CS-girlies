@@ -154,6 +154,27 @@ class ApiService {
     });
   }
 
+  // Dream-specific methods
+  async saveDream(dreamData) {
+    return this.request('/projects', {
+      method: 'POST',
+      body: JSON.stringify(dreamData),
+    });
+  }
+
+  async getDreams(filters = {}) {
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) queryParams.append(key, value);
+    });
+    
+    return this.request(`/projects?${queryParams.toString()}`);
+  }
+
+  async searchDreams(query) {
+    return this.request(`/projects/search?q=${encodeURIComponent(query)}`);
+  }
+
   async deleteProject(projectId) {
     return this.request(`/projects/${projectId}`, {
       method: 'DELETE',

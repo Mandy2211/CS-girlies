@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'; 
 import { useAuth } from '../Context/AuthContext';
 import UploadSection from '../components/UploadSection';
-import ProjectGallery from '../components/ProjectGallery';
+import DreamEntry from '../components/DreamEntry';
+import DreamList from '../components/DreamList';
+import VisionBoard from '../components/VisionBoard';
+import DreamDetail from '../components/DreamDetail';
 import LoadingSpinner from '../components/LoadingSpin';
 import apiService from '../services/apiService';
 
@@ -9,33 +12,12 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('create');
   const [isLoading, setIsLoading] = useState(false);
-  const [userInput, setUserInput] = useState('');
-  const [selectedFiles, setSelectedFiles] = useState([]);
   const [processingStatus, setProcessingStatus] = useState('');
   const [showUploadSection, setShowUploadSection] = useState(false);
+  const [showDreamEntry, setShowDreamEntry] = useState(false);
+  const [selectedDream, setSelectedDream] = useState(null);
 
-  const handleImageUpload = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.multiple = true;
-    input.onchange = (e) => {
-      const files = Array.from(e.target.files);
-      setSelectedFiles(files);
-    };
-    input.click();
-  };
 
-  const handleFileUpload = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
-    input.onchange = (e) => {
-      const files = Array.from(e.target.files);
-      setSelectedFiles(files);
-    };
-    input.click();
-  };
 
   const handleProcessingStart = () => {
     setProcessingStatus('Processing your dream...');
@@ -45,7 +27,6 @@ const Dashboard = () => {
   const handleProcessingComplete = (result) => {
     setProcessingStatus('Dream processed successfully!');
     setIsLoading(false);
-    // Refresh the gallery to show the new project
     setTimeout(() => {
       setProcessingStatus('');
       setShowUploadSection(false);
@@ -58,6 +39,22 @@ const Dashboard = () => {
     setTimeout(() => {
       setProcessingStatus('');
     }, 3000);
+  };
+
+  const handleDreamSaved = (dream) => {
+    setProcessingStatus('Dream saved successfully!');
+    setShowDreamEntry(false);
+    setTimeout(() => {
+      setProcessingStatus('');
+    }, 2000);
+  };
+
+  const handleDreamSelect = (dream) => {
+    setSelectedDream(dream);
+  };
+
+  const handleDreamClose = () => {
+    setSelectedDream(null);
   };
 
   const handleSignOut = async () => {
@@ -85,17 +82,27 @@ const Dashboard = () => {
               }`}
               onClick={() => setActiveTab('create')}
             >
-              Home
+              Create
             </button>
             <button
               className={`py-2 px-6 rounded-full font-medium transition-colors ${
-                activeTab === 'gallery' 
+                activeTab === 'journal' 
                   ? 'bg-pink-200 text-gray-800' 
                   : 'bg-white bg-opacity-60 text-gray-700 hover:bg-opacity-80'
               }`}
-              onClick={() => setActiveTab('gallery')}
+              onClick={() => setActiveTab('journal')}
             >
-              Gallery
+              Journal
+            </button>
+            <button
+              className={`py-2 px-6 rounded-full font-medium transition-colors ${
+                activeTab === 'vision-board' 
+                  ? 'bg-pink-200 text-gray-800' 
+                  : 'bg-white bg-opacity-60 text-gray-700 hover:bg-opacity-80'
+              }`}
+              onClick={() => setActiveTab('vision-board')}
+            >
+              Vision Board
             </button>
           </div>
 
@@ -128,13 +135,19 @@ const Dashboard = () => {
             </div>
 
             {/* Start Creation Button */}
-            {!showUploadSection && (
-              <div className="text-center mb-8">
+            {!showUploadSection && !showDreamEntry && (
+              <div className="text-center mb-8 space-y-4">
                 <button
                   onClick={() => setShowUploadSection(true)}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-all duration-300"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-all duration-300 mr-4"
                 >
-                  Start Creating Your Dream
+                  Quick Create
+                </button>
+                <button
+                  onClick={() => setShowDreamEntry(true)}
+                  className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-all duration-300"
+                >
+                  Log Dream
                 </button>
               </div>
             )}
@@ -148,6 +161,14 @@ const Dashboard = () => {
               />
             )}
 
+            {/* Dream Entry Section */}
+            {showDreamEntry && (
+              <DreamEntry
+                onDreamSaved={handleDreamSaved}
+                onCancel={() => setShowDreamEntry(false)}
+              />
+            )}
+
             {/* Processing Status */}
             {processingStatus && (
               <div className="mt-8 text-center">
@@ -158,10 +179,24 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        ) : (
-          <ProjectGallery />
-        )}
+        ) : activeTab === 'journal' ? (
+          <DreamList 
+            onDreamSelect={handleDreamSelect}
+            onRefresh={() => setProcessingStatus('')}
+          />
+        ) : activeTab === 'vision-board' ? (
+          <VisionBoard />
+        ) : null}
       </div>
+
+      {/* Dream Detail Modal */}
+      {selectedDream && (
+        <DreamDetail
+          dream={selectedDream}
+          onClose={handleDreamClose}
+          onUpdate={(updatedDream) => setSelectedDream(updatedDream)}
+        />
+      )}
     </div>
   );
 };
