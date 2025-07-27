@@ -29,6 +29,7 @@ router.post('/generate-story', authenticateUser, async (req, res) => {
     if (!result.success) {
       return ResponseHandler.error(res, result.error, 500);
     }
+    console.log('[DEBUG] Story generation finished');
     let audioUrl = null;
     if (tts) {
       const ttsResult = await openaiService.generateTTS(result.story);
@@ -45,6 +46,7 @@ router.post('/generate-story', authenticateUser, async (req, res) => {
         return ResponseHandler.error(res, audioResult.error, 500);
       }
       audioUrl = fileHandler.getFileUrl(audioResult.filename);
+      console.log('[DEBUG] Audio generation finished');
     }
     return ResponseHandler.success(res, {
       story: result.story,
@@ -68,9 +70,12 @@ router.post('/drawing-to-animation', authenticateUser, upload.single('drawing'),
     if (!fileResult.success) {
       return ResponseHandler.error(res, fileResult.error, 500);
     }
-    // Upload to Supabase Storage and get public URL
-    const storagePath = `user-${req.user.id}/${fileResult.filename}`;
-    const publicUrl = await supabaseService.uploadFileToSupabaseStorage(fileResult.filePath, storagePath);
+    const accessToken = req.headers.authorization?.replace('Bearer ', '');
+    console.log('[DEBUG] Access Token:', accessToken);
+    console.log('[DEBUG] User ID:', req.user.id);
+    const storagePath = `private/${req.user.id}/${fileResult.filename}`;
+    console.log('[DEBUG] Supabase Storage insert path:', storagePath);
+    const publicUrl = await supabaseService.uploadFileToSupabaseStorage(fileResult.filePath, storagePath, accessToken);
     // Generate animation from public image URL
     const animationResult = await replicateService.generateAnimationFromImageAndText(
       publicUrl,
@@ -82,6 +87,7 @@ router.post('/drawing-to-animation', authenticateUser, upload.single('drawing'),
     if (!animationResult.success) {
       return ResponseHandler.error(res, animationResult.error, 500);
     }
+    console.log('[DEBUG] Animation generation finished');
     return ResponseHandler.success(res, {
       animationUrl: animationResult.videoUrl || animationResult.animationUrl
     }, 'Animation generated successfully');

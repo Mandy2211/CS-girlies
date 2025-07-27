@@ -42,6 +42,7 @@ const DreamList = ({ onDreamSelect, onRefresh }) => {
     try {
       setLoading(true);
       const result = await apiService.getProjects();
+      console.log('[DEBUG] DreamList fetch result:', result);
       if (result.success) {
         setDreams(result.projects || []);
       }

@@ -1,6 +1,7 @@
 const { supabase } = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
 
 class SupabaseService {
   // Save project to database
@@ -210,14 +211,39 @@ class SupabaseService {
 }
 
 // Upload a file to Supabase Storage and return its public URL
-async function uploadFileToSupabaseStorage(localFilePath, storagePath) {
+async function uploadFileToSupabaseStorage(localFilePath, storagePath, accessToken) {
   const fileBuffer = fs.readFileSync(localFilePath);
+  // Create a Supabase client with the user's access token for RLS
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+    }
+  );
+  console.log('[DEBUG] Supabase Storage insert path:', storagePath);
   const { data, error } = await supabase.storage
-    .from('images') // Change 'images' to your bucket name if needed
+    .from('images')
     .upload(storagePath, fileBuffer, { upsert: true });
-  if (error) throw error;
+  if (error) {
+    console.error('[Supabase Storage] Upload (insert) error:', error);
+    throw error;
+  }
   // Get public URL
-  const { publicUrl } = supabase.storage.from('images').getPublicUrl(storagePath).data;
+  let publicUrl;
+  try {
+    const result = supabase.storage.from('images').getPublicUrl(storagePath).data;
+    publicUrl = result.publicUrl;
+    if (!publicUrl) throw new Error('No public URL returned');
+  } catch (selectError) {
+    console.error('[Supabase Storage] getPublicUrl (select) error:', selectError);
+    throw selectError;
+  }
+  console.log('[Supabase Storage] Public URL:', publicUrl);
   return publicUrl;
 }
 

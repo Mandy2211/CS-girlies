@@ -48,6 +48,7 @@ const VisionBoard = () => {
     try {
       setLoading(true);
       const result = await apiService.getProjects();
+      console.log('[DEBUG] VisionBoard fetch result:', result);
       if (result.success) {
         setDreams(result.projects || []);
       }
