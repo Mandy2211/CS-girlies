@@ -1,9 +1,9 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { useAuth } from '../Context/AuthContext';
 import UploadSection from '../components/UploadSection';
 import ProjectGallery from '../components/ProjectGallery';
 import LoadingSpinner from '../components/LoadingSpin';
-import { supabase } from '../supabaseClient';
+import apiService from '../services/apiService';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -11,6 +11,8 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [processingStatus, setProcessingStatus] = useState('');
+  const [showUploadSection, setShowUploadSection] = useState(false);
 
   const handleImageUpload = () => {
     const input = document.createElement('input');
@@ -35,44 +37,34 @@ const Dashboard = () => {
     input.click();
   };
 
-  const handleSubmit = async () => {
-    if (!userInput.trim() && selectedFiles.length === 0) {
-      alert('Please enter some text or upload files');
-      return;
-    }
-
+  const handleProcessingStart = () => {
+    setProcessingStatus('Processing your dream...');
     setIsLoading(true);
-    
-    try {
-      // Here you would integrate with your API
-      // For now, let's simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Save to Supabase
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([
-          {
-            user_id: user.id,
-            content: userInput,
-            type: 'dream',
-            created_at: new Date().toISOString()
-          }
-        ]);
+  };
 
-      if (error) {
-        console.error('Error saving project:', error);
-        alert('Error saving project');
-      } else {
-        alert('Project created successfully!');
-        setUserInput('');
-        setSelectedFiles([]);
-      }
+  const handleProcessingComplete = (result) => {
+    setProcessingStatus('Dream processed successfully!');
+    setIsLoading(false);
+    // Refresh the gallery to show the new project
+    setTimeout(() => {
+      setProcessingStatus('');
+      setShowUploadSection(false);
+    }, 2000);
+  };
+
+  const handleProcessingError = (error) => {
+    setProcessingStatus(`Error: ${error}`);
+    setIsLoading(false);
+    setTimeout(() => {
+      setProcessingStatus('');
+    }, 3000);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await apiService.supabase?.auth.signOut();
     } catch (error) {
-      console.error('Error:', error);
-      alert('Something went wrong');
-    } finally {
-      setIsLoading(false);
+      console.error('Sign out error:', error);
     }
   };
 
@@ -109,7 +101,7 @@ const Dashboard = () => {
 
           {/* Sign Out Button */}
           <button
-            onClick={() => supabase.auth.signOut()}
+            onClick={handleSignOut}
             className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full transition-colors"
           >
             Sign Out
@@ -135,58 +127,36 @@ const Dashboard = () => {
               </h2>
             </div>
 
-            {/* Upload Buttons */}
-            <div className="flex justify-center space-x-6 mb-8">
-              <button 
-                onClick={handleImageUpload}
-                className="bg-pink-200 hover:bg-pink-300 text-gray-800 py-3 px-8 rounded-lg font-medium transition-colors"
-              >
-                Upload images
-              </button>
-              <button 
-                onClick={handleFileUpload}
-                className="bg-pink-200 hover:bg-pink-300 text-gray-800 py-3 px-8 rounded-lg font-medium transition-colors"
-              >
-                Upload files
-              </button>
-            </div>
-
-            {/* Show selected files */}
-            {selectedFiles.length > 0 && (
-              <div className="max-w-2xl mx-auto mb-6">
-                <h3 className="text-lg font-medium text-gray-700 mb-2">Selected Files:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedFiles.map((file, index) => (
-                    <span key={index} className="bg-pink-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                      {file.name}
-                    </span>
-                  ))}
-                </div>
+            {/* Start Creation Button */}
+            {!showUploadSection && (
+              <div className="text-center mb-8">
+                <button
+                  onClick={() => setShowUploadSection(true)}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-all duration-300"
+                >
+                  Start Creating Your Dream
+                </button>
               </div>
             )}
 
-            {/* Text Input Area */}
-            <div className="max-w-2xl mx-auto mb-8">
-              <textarea
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                placeholder="Enter your thoughts, ideas, dreams (idk we can edit)"
-                className="w-full h-32 p-4 bg-pink-100 border-none rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-pink-300 text-gray-700 placeholder-gray-600"
+            {/* Upload Section */}
+            {showUploadSection && (
+              <UploadSection
+                onProcessingStart={handleProcessingStart}
+                onProcessingComplete={handleProcessingComplete}
+                onError={handleProcessingError}
               />
-            </div>
+            )}
 
-            {/* Submit Button */}
-            <div className="text-center">
-              <button
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white py-3 px-8 rounded-lg font-medium transition-colors"
-              >
-                {isLoading ? 'Creating magic...' : 'Create Dream'}
-              </button>
-            </div>
-
-            {/* Removed the problematic UploadSection component completely */}
+            {/* Processing Status */}
+            {processingStatus && (
+              <div className="mt-8 text-center">
+                <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full">
+                  <LoadingSpinner size="sm" />
+                  <span className="ml-2">{processingStatus}</span>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <ProjectGallery />

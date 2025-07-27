@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
+import apiService from '../services/apiService';
 
-const UploadSection = ({ onProcessingStart }) => {
+const UploadSection = ({ onProcessingStart, onProcessingComplete, onError }) => {
   const [dreamInput, setDreamInput] = useState('');
   const [files, setFiles] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [progress, setProgress] = useState('');
   const fileInputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -54,15 +56,28 @@ const UploadSection = ({ onProcessingStart }) => {
     
     onProcessingStart();
     setIsGenerating(true);
+    setProgress('Starting dream processing...');
     
     try {
-      // API integration would go here
-      // await generateStoryAndAnimation(dreamInput, files);
+      // Call the backend API to process the dream
+      const result = await apiService.processDream(dreamInput.trim(), 'My Dream', files);
       
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      if (result.success) {
+        setProgress('Dream processed successfully!');
+        onProcessingComplete && onProcessingComplete(result.data);
+      } else {
+        throw new Error(result.message || 'Failed to process dream');
+      }
+    } catch (error) {
+      console.error('Dream processing error:', error);
+      setProgress('Error processing dream');
+      onError && onError(error.message || 'Failed to process dream');
     } finally {
       setIsGenerating(false);
+      // Reset form after processing
+      setDreamInput('');
+      setFiles([]);
+      setProgress('');
     }
   };
 
@@ -123,7 +138,7 @@ const UploadSection = ({ onProcessingStart }) => {
         )}
       </div>
 
-      <div className="lg:col-span-2 flex justify-center mt-4">
+      <div className="lg:col-span-2 flex flex-col items-center mt-4">
         <button
           onClick={handleSubmit}
           disabled={isGenerating || (!dreamInput.trim() && files.length === 0)}
@@ -131,6 +146,12 @@ const UploadSection = ({ onProcessingStart }) => {
         >
           {isGenerating ? 'Creating Magic...' : 'Bring My Dream to Life'}
         </button>
+        
+        {progress && (
+          <p className="mt-4 text-sm text-gray-600 text-center">
+            {progress}
+          </p>
+        )}
       </div>
     </div>
   );
