@@ -44,12 +44,6 @@ const AuthModal = ({ mode = 'login', onClose, onSuccess }) => {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white text-center">
-          <h1 className="text-2xl font-bold">VISUAL BOARD</h1>
-          <p className="text-indigo-100 mt-1">Turn your thoughts into MAGIC</p>
-        </div>
-
         {/* Content */}
         <div className="p-6">
           {user ? (

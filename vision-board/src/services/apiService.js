@@ -50,6 +50,7 @@ class ApiService {
   // File upload request
   async uploadFile(endpoint, formData) {
     const token = await this.getAuthToken();
+    console.log('Supabase token being sent:', token); // Debug log
     
     const config = {
       method: 'POST',
@@ -104,12 +105,10 @@ class ApiService {
     });
   }
 
-  async generateAnimationFromImage(imageFile, duration = 3) {
+  async generateAnimationFromImage(imageFile) {
     const formData = new FormData();
-    formData.append('image', imageFile);
-    formData.append('duration', duration);
-    
-    return this.uploadFile('/animation/generate-from-image', formData);
+    formData.append('drawing', imageFile); // must match backend field name
+    return this.uploadFile('/api/ai/drawing-to-animation', formData); // must match backend route
   }
 
   async generateCombinedAnimation(imageFile, prompt, duration = 3) {

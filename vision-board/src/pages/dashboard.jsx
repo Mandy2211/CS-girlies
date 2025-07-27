@@ -4,6 +4,8 @@ import UploadSection from '../components/UploadSection';
 import ProjectGallery from '../components/ProjectGallery';
 import LoadingSpinner from '../components/LoadingSpin';
 import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
+import apiService from '../services/apiService';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -11,6 +13,9 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const navigate = useNavigate();
 
   const handleImageUpload = () => {
     const input = document.createElement('input');
@@ -71,6 +76,58 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAIGenerateImage = async (file) => {
+    if (!file) return;
+    setIsLoading(true);
+    try {
+      // Call your backend/Replicate API for image-to-animation
+      const result = await apiService.generateAnimationFromImage(file);
+      navigate('/preview', { state: { output: result.data || result } });
+    } catch (e) {
+      alert('Failed to generate animation: ' + e.message);
+      setIsLoading(false);
+    }
+  };
+
+  // AI prompt handler (OpenAI)
+  const handleAIPrompt = async () => {
+    if (!userInput.trim()) return;
+    setAiLoading(true);
+    navigate('/loading');
+    try {
+      // Call your OpenAI backend (example: generateStory)
+      const result = await apiService.generateStory(userInput);
+      navigate('/preview', { state: { output: result.data || result } });
+    } catch (e) {
+      alert('Failed to generate: ' + e.message);
+      navigate('/preview', { state: { output: { story: userInput } } });
+    }
+    setAiLoading(false);
+  };
+
+  // Replicate image upload handler
+  const handleReplicateImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAiLoading(true);
+    navigate('/loading');
+    try {
+      // Call your Replicate backend (example: generateAnimationFromImage)
+      const result = await apiService.generateAnimationFromImage(file);
+      navigate('/preview', { state: { output: result.data || result } });
+    } catch (e) {
+      alert('Failed to generate animation: ' + e.message);
+      navigate('/preview', { state: { output: {} } });
+    }
+    setAiLoading(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    console.log('Signed out, user:', await supabase.auth.getUser());
+    navigate('/'); // Redirect to home/login page
   };
 
   if (!user) return <LoadingSpinner />;
@@ -285,9 +342,15 @@ const Dashboard = () => {
             >
               Gallery
             </button>
+            <button
+              style={getTabStyle(activeTab === 'ai')}
+              onClick={() => setActiveTab('ai')}
+            >
+              AI Generator
+            </button>
           </div>
           <button
-            onClick={() => supabase.auth.signOut()}
+            onClick={handleSignOut}
             style={signOutStyle}
           >
             Sign Out
@@ -369,6 +432,46 @@ const Dashboard = () => {
                 {isLoading ? '✨ Creating magic...' : '🚀 Create Dream'}
               </button>
             </div>
+          </div>
+        ) : activeTab === 'ai' ? (
+          <div style={centerContentStyle}>
+            <h2 style={titleStyle}>AI Story/Animation Generator</h2>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setShowAIPrompt((v) => !v)}
+                style={submitButtonStyle}
+                disabled={aiLoading}
+              >
+                Generate Story with AI
+              </button>
+              <label style={{ ...submitButtonStyle, cursor: aiLoading ? 'not-allowed' : 'pointer', marginBottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'fit-content' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleReplicateImage}
+                  disabled={aiLoading}
+                />
+                Image to Animation
+              </label>
+            </div>
+            {showAIPrompt && (
+              <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <textarea
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  placeholder="Enter your prompt for AI story/animation..."
+                  style={textareaStyle}
+                />
+                <button
+                  onClick={handleAIPrompt}
+                  style={{ ...submitButtonStyle, marginTop: '12px' }}
+                  disabled={aiLoading}
+                >
+                  {aiLoading ? 'Generating...' : 'Submit to AI'}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ 

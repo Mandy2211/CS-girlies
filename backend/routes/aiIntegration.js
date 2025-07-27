@@ -72,10 +72,28 @@ router.post('/drawing-to-animation', authenticateUser, upload.single('drawing'),
     }
     const accessToken = req.headers.authorization?.replace('Bearer ', '');
     console.log('[DEBUG] Access Token:', accessToken);
-    console.log('[DEBUG] User ID:', req.user.id);
-    const storagePath = `private/${req.user.id}/${fileResult.filename}`;
-    console.log('[DEBUG] Supabase Storage insert path:', storagePath);
+    console.log('[DEBUG] User ID:', req.user.sub);
+    const storagePath = `private/${req.user.sub}/${fileResult.filename}`;
+    console.log('[DEBUG] Full Supabase Storage path:', storagePath);
     const publicUrl = await supabaseService.uploadFileToSupabaseStorage(fileResult.filePath, storagePath, accessToken);
+    // Log file metadata to the files table
+    const userId = req.user.sub || req.user.id; // Use sub if available, else id
+    console.log('[DEBUG] Inserting file metadata:', {
+      userId,
+      filename: fileResult.filename,
+      originalName: fileResult.originalName,
+      filePath: storagePath,
+      fileSize: fileResult.fileSize,
+      mimeType: fileResult.mimeType
+    });
+    await supabaseService.saveFileMetadata({
+      userId,
+      filename: fileResult.filename,
+      originalName: fileResult.originalName,
+      filePath: storagePath,
+      fileSize: fileResult.fileSize,
+      mimeType: fileResult.mimeType
+    });
     // Generate animation from public image URL
     const animationResult = await replicateService.generateAnimationFromImageAndText(
       publicUrl,
