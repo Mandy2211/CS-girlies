@@ -1,8 +1,6 @@
 # 🌈 DreamCraft: Turn Imagination into Interactive Media
 
-**Track:** AI/ML • Education • ArtTech  
-**Demo:** _[Insert deployed link here]_  
-**Backend:** Render/Railway • **Frontend:** Vercel
+**Track:** AI/ML • The Creative Strand
 
 DreamCraft is a no-code platform that transforms anyone’s creativity—drawings, dreams, vision boards, and even to-do lists—into magical, animated stories using generative AI. It empowers children, creatives, and everyday users to bring their imagination to life with the help of modern AI tools.
 
