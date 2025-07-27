@@ -23,7 +23,7 @@ const DownloadPage = () => {
     <div className="download-wrapper">
       
       <div className="header-section">
-  <h1 className="main-title">YOUR GALLERY</h1>
+  <h1 className="main-title">YOUR GALLERY </h1>
   <h2 className="subtitle" >Let's take a look back.. </h2>
   
 </div>
